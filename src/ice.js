@@ -689,8 +689,9 @@
 			/**
 			 * Handles accepting or rejecting tracking changes
 			 */
-			acceptRejectChange: function (node, isAccept, event) {
-        event.preventDefault();
+			acceptRejectChange: function (node, isAccept) {
+        // event.preventDefault();
+        debugger;
 				var delSel, insSel, selector, removeSel, replaceSel, trackNode, changes, dom = ice.dom;
 				var nodeParent = node.parentElement;
 				var nodeParentChanges = null;
