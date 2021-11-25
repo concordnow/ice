@@ -672,8 +672,8 @@
 			 * In the case of insert, inner content will be used to replace the containing tag; and in
 			 * the case of delete, the node will be removed.
 			 */
-			acceptChange: function (node) {
-				this.acceptRejectChange(node, true);
+			acceptChange: function (node, event) {
+				this.acceptRejectChange(node, true, event);
 			},
 
 			/**
@@ -682,14 +682,15 @@
 			 * In the case of delete, inner content will be used to replace the containing tag; and in
 			 * the case of insert, the node will be removed.
 			 */
-			rejectChange: function (node) {
-				this.acceptRejectChange(node, false);
+			rejectChange: function (node, event) {
+				this.acceptRejectChange(node, false, event);
 			},
 
 			/**
 			 * Handles accepting or rejecting tracking changes
 			 */
-			acceptRejectChange: function (node, isAccept) {
+			acceptRejectChange: function (node, isAccept, event) {
+        event.preventDefault();
 				var delSel, insSel, selector, removeSel, replaceSel, trackNode, changes, dom = ice.dom;
 				var nodeParent = node.parentElement;
 				var nodeParentChanges = null;
