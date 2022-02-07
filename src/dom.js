@@ -371,7 +371,10 @@
     else return jQuery(elements).attr(key);
   };
   dom.replaceWith = function (node, replacement) {
-    return jQuery(node).replaceWith(replacement);
+    if (dom.isIterable(replacement)) {
+      return node.replaceWith.apply(node, replacement);
+    }
+    return node.replaceWith(replacement);
   };
   dom.removeAttr = function (elements, name) {
     jQuery(elements).removeAttr(name);
