@@ -359,7 +359,7 @@
   };
 
   dom.bind = function (element, event, callback) {
-    return jQuery(element).bind(event, callback);
+    element.addEventListener(event, callback);
   };
 
   dom.unbind = function (element, event, callback) {
