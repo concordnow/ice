@@ -725,7 +725,7 @@
     return false;
   };
   dom.isArray = function (v) {
-    return jQuery.isArray(v);
+    return Array.isArray(v);
   };
   dom.isNumeric = function (str) {
     var result = str.match(/^\d+$/);
