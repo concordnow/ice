@@ -446,7 +446,7 @@
 					return false;
 				}
 				ice.dom.each(this._deletes, function (i, el) {
-					ice.dom.find(self.element, self._delBookmark + '[data-allocation=' + i + ']').replaceWith(el);
+					ice.dom.find(self.element, self._delBookmark + '[data-allocation="' + i + '"]').replaceWith(el);
 				});
 				this.isPlaceholdingDeletes = false;
 				return true;
@@ -706,7 +706,7 @@
 				trackNode = dom.getNode(node, selector);
 				// Some changes are done in batches so there may be other tracking
 				// nodes with the same `changeIdAttribute` batch number.
-				changes = dom.find(this.element, '[' + this.changeIdAttribute + '=' + dom.attr(trackNode, this.changeIdAttribute) + ']');
+				changes = dom.find(this.element, '[' + this.changeIdAttribute + '="' + dom.attr(trackNode, this.changeIdAttribute) + '"]');
 				nodeParentChanges = [].map.call(changes, function(change) {
 					var parent = change.parentElement;
 					while(parent && this.blockParentsNodeName.indexOf(parent.nodeName) === -1) {

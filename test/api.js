@@ -99,13 +99,13 @@ $(document).ready(function() {
       var changeEditor = getIce(el);
       
       var range = changeEditor.env.selection.createRange();
-      range.setStart(el.find('[data-cid=4]')[0], 0);
+      range.setStart(el.find('[data-cid="4"]')[0], 0);
       range.collapse(true);
       changeEditor.env.selection.addRange(range);
-      changeEditor.acceptChange(jQuery(el).find('[data-cid=4]'));
-      changeEditor.acceptChange(jQuery(el).find('[data-cid=2]:eq(0)'));
+      changeEditor.acceptChange(jQuery(el).find('[data-cid="4"]'));
+      changeEditor.acceptChange(jQuery(el).find('[data-cid="2"]:eq(0)'));
 
-      assert.ok(jQuery(el).find('[data-cid=4], [data-cid=2]').length === 0, 'Tracking nodes were not found in content.');
+      assert.ok(jQuery(el).find('[data-cid="4"], [data-cid="2"]').length === 0, 'Tracking nodes were not found in content.');
       assert.ok(jQuery(el).text() === 'test content in paragraph one.test  paragraph two.', 'Tracking nodes were accepted based on their respective tags.');
     });
     
@@ -117,13 +117,13 @@ $(document).ready(function() {
       var changeEditor = getIce(el);
 
       var range = changeEditor.env.selection.createRange();
-      range.setStart(el.find('[data-cid=4]')[0], 0);
+      range.setStart(el.find('[data-cid="4"]')[0], 0);
       range.collapse(true);
       changeEditor.env.selection.addRange(range);
-      changeEditor.rejectChange(jQuery(el).find('[data-cid=4]'));
-      changeEditor.rejectChange(jQuery(el).find('[data-cid=2]'));
+      changeEditor.rejectChange(jQuery(el).find('[data-cid="4"]'));
+      changeEditor.rejectChange(jQuery(el).find('[data-cid="2"]'));
 
-      assert.ok(jQuery(el).find('[data-cid=4], [data-cid=2]').length === 0, 'Tracking nodes were not found in content.');
+      assert.ok(jQuery(el).find('[data-cid="4"], [data-cid="2"]').length === 0, 'Tracking nodes were not found in content.');
       assert.ok(jQuery(el).text() === 'test content paragraph one.test content in paragraph two.', 'Tracking nodes were rejected based on their respective tags.');
     });
   });

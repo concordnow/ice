@@ -48,27 +48,27 @@ $(document).ready(function() {
       var range = changeEditor.env.selection.createRange();
       
       // Insert into same user insert.
-      range.setStart(el.find('span[cid=3]')[0], 0);
+      range.setStart(el.find('span[cid="3"]')[0], 0);
       range.moveStart('character', 2);
       range.collapse(true);
       changeEditor.insert('sert', range);
-      assert.ok(el.find('[cid=3]').text() === 'insert 3' 
+      assert.ok(el.find('[cid="3"]').text() === 'insert 3'
             && el.text() === 'test in 1 in 2 insert 3 done.', 
           'Inserted in same user insert.');
 
       // Insert into another user's insert.
-      range.setStart(el.find('span[cid=1]')[0], 0);
+      range.setStart(el.find('span[cid="1"]')[0], 0);
       range.moveStart('character', 3);
       range.collapse(true);
       changeEditor.insert('sert', range);
       assert.ok(el.text() === 'test insert 1 in 2 insert 3 done.', 'Inserted in another user insert.');
       
       // Insert into nested, multi-user insert.
-      range.setStart(el.find('span[cid=2]')[0], 0);
+      range.setStart(el.find('span[cid="2"]')[0], 0);
       range.moveStart('character', 2)
       range.collapse(true);
       changeEditor.insert('sert', range);
-      assert.ok(el.find('[cid=2]').find('.ins').text() === 'sert' 
+      assert.ok(el.find('[cid="2"]').find('.ins').text() === 'sert'
             && el.text() === 'test insert 1 insert 2 insert 3 done.', 
           'Inserted in a mult-user insert.');
     });
@@ -83,7 +83,7 @@ $(document).ready(function() {
 
       var range = changeEditor.env.selection.createRange();
       // Try to insert in a delete
-      range.setStartAfter(el.find('span[cid=3]')[0], 0);
+      range.setStartAfter(el.find('span[cid="3"]')[0], 0);
       range.collapse(true);
       changeEditor.insert(' new insert.', range);
       assert.ok(el.find('.ins').text() === ' new insert.' 
@@ -92,7 +92,7 @@ $(document).ready(function() {
       el.find('.ins').remove();  // cleanup the dom
 
       // Try to insert in a nested delete
-      range.setStart(el.find('span[cid=3]')[0], 0);
+      range.setStart(el.find('span[cid="3"]')[0], 0);
       range.collapse(true);
       changeEditor.insert(' new insert.', range);
       assert.ok(el.find('.ins').text() === ' new insert.' 
@@ -101,7 +101,7 @@ $(document).ready(function() {
       el.find('.ins').remove();  // cleanup the dom
 
       // Try to insert in a delete that has an adjacent delete
-      range.setStart(el.find('span[cid=1]')[0], 0);
+      range.setStart(el.find('span[cid="1"]')[0], 0);
       range.moveStart('character', 1);
       range.collapse(true);
       changeEditor.insert(' new insert.', range);
