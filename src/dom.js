@@ -131,7 +131,7 @@
   };
   dom.setHtml = function (element, content) {
     if (element) {
-      jQuery(element).html(content);
+      element.innerHTML = content;
     }
   };
   // Remove whitespace/newlines between nested block elements
