@@ -363,7 +363,7 @@
   };
 
   dom.unbind = function (element, event, callback) {
-    return jQuery(element).unbind(event, callback);
+    element.removeEventListener(event, callback);
   };
 
   dom.attr = function (elements, key, val) {
