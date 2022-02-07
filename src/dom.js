@@ -377,7 +377,9 @@
     return node.replaceWith(replacement);
   };
   dom.removeAttr = function (elements, name) {
-    jQuery(elements).removeAttr(name);
+    return dom.applyOnIterable(elements, function(el) {
+      return el.removeAttribute(name);
+    });
   };
   dom.getElementsBetween = function (fromElem, toElem) {
     var elements = [];
