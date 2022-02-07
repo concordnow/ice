@@ -637,7 +637,7 @@
     return element.classList.contains(className);
   };
   dom.addClass = function (element, classNames) {
-    jQuery(element).addClass(classNames);
+    return element.classList.add.apply(element.classList, classNames.split(' '));
   };
   dom.removeClass = function (element, classNames) {
     jQuery(element).removeClass(classNames);
