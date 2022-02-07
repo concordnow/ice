@@ -561,7 +561,10 @@
     }
   };
   dom.create = function (html) {
-    return jQuery(html)[0];
+    var template = document.createElement('template');
+    html = html.trim(); // Never return a text node of whitespace as the result
+    template.innerHTML = html;
+    return template.content.firstChild;
   };
   dom.find = function (parent, exp) {
     return jQuery(parent).find(exp);
