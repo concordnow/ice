@@ -780,9 +780,13 @@
    */
   dom.stripTags = function (content, allowedTags) {
     if (typeof allowedTags === "string") {
-      var c = jQuery('<div>' + content + '</div>');
-      c.find('*').not(allowedTags).remove();
-      return c.html();
+      var c = dom.create('<div>' + content + '</div>'),
+          selector = allowedTags.split(' ')
+                                .reduce(function(acc, t) {
+                                  return acc + ':not(' + t + ')';
+                                }, '*');
+      dom.remove(c.querySelectorAll(notSelector));
+      return c.innerHTML;
     } else {
       var match;
       var re = new RegExp(/<\/?(\w+)((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/gim);
