@@ -627,7 +627,7 @@
   };
   dom.setStyle = function (element, property, value) {
     if (element) {
-      jQuery(element).css(property, value);
+      element.style[property] = value;
     }
   };
   dom.getStyle = function (element, property) {
