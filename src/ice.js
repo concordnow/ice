@@ -426,7 +426,7 @@
 				var deleteSelector = '.' + this._getIceNodeClass('deleteType');
 				ice.dom.each(ice.dom.find(this.element, deleteSelector), function (i, el) {
 					self._deletes.push(ice.dom.cloneNode(el));
-					ice.dom.replaceWith(el, '<' + self._delBookmark + ' data-allocation="' + (self._deletes.length - 1) + '"/>');
+					ice.dom.replaceWith(el, ice.dom.create('<' + self._delBookmark + ' data-allocation="' + (self._deletes.length - 1) + '"/>'));
 				});
 				return true;
 			},
