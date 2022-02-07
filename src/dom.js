@@ -631,7 +631,7 @@
     }
   };
   dom.getStyle = function (element, property) {
-    return jQuery(element).css(property);
+    return element.style[property];
   };
   dom.hasClass = function (element, className) {
     return jQuery(element).hasClass(className);
