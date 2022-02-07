@@ -254,7 +254,7 @@
     }
   };
   dom.getNodeTextContent = function (node) {
-    return jQuery(node).text();
+    return node.textContent;
   };
   dom.getNodeStubContent = function (node) {
     return jQuery(node).find(dom.CONTENT_STUB_ELEMENTS.join(', '));
