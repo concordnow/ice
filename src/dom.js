@@ -268,7 +268,8 @@
     return dom.getNodeTextContent(node).length + jQuery(node).find(dom.STUB_ELEMENTS.join(', ')).length;
   };
   dom.setNodeTextContent = function (node, txt) {
-    return jQuery(node).text(txt);
+    node.textContent = txt;
+    return node;
   };
   dom.getTagName = function (node) {
     return node.tagName && node.tagName.toLowerCase() || null;
