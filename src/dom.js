@@ -634,7 +634,7 @@
     return element.style[property];
   };
   dom.hasClass = function (element, className) {
-    return jQuery(element).hasClass(className);
+    return element.classList.contains(className);
   };
   dom.addClass = function (element, classNames) {
     jQuery(element).addClass(classNames);
