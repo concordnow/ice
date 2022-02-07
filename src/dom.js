@@ -640,7 +640,7 @@
     return element.classList.add.apply(element.classList, classNames.split(' '));
   };
   dom.removeClass = function (element, classNames) {
-    jQuery(element).removeClass(classNames);
+    return element.classList.remove.apply(element.classList, classNames.split(' '));
   };
   dom.preventDefault = function (e) {
     e.preventDefault();
