@@ -127,7 +127,7 @@
     }
   };
   dom.getHtml = function (element) {
-    return jQuery(element).html();
+    return element.innerHTML;
   };
   dom.setHtml = function (element, content) {
     if (element) {
