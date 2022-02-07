@@ -566,7 +566,8 @@
     return jQuery(parent).find(exp);
   };
   dom.children = function (parent, exp) {
-    return jQuery(parent).children(exp);
+    var _exp = exp || '*';
+    return parent.querySelectorAll(':scope > ' + _exp);
   };
   dom.parent = function (child, exp) {
     return jQuery(child).parent(exp)[0];
