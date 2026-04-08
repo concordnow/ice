@@ -120,16 +120,18 @@
     }
   };
   dom.prepend = function (parent, elem) {
+    if (typeof elem === 'string') elem = dom.create(elem);
     parent.insertBefore(elem, parent.firstChild);
   };
   dom.append = function (parent, elem) {
+    if (typeof elem === 'string') elem = dom.create(elem);
     parent.appendChild(elem);
   };
   dom.insertBefore = function (before, elem) {
-    before.parentNode.insertBefore(elem, before);
+    if (before && before.parentNode) before.parentNode.insertBefore(elem, before);
   };
   dom.insertAfter = function (after, elem) {
-    after.parentNode.insertBefore(elem, after.nextSibling);
+    if (after && after.parentNode) after.parentNode.insertBefore(elem, after.nextSibling);
   };
   dom.getHtml = function (element) {
     return element.innerHTML;
@@ -382,8 +384,10 @@
     } catch (e) {}
     return null;
   };
-  dom.cloneNode = function (elems, cloneEvents) {
-    if (elems.length !== undefined) {
+  // Note: cloneEvents param is accepted for API compatibility but has no effect.
+  // Native cloneNode does not clone event listeners (jQuery.clone did via internal tracking).
+  dom.cloneNode = function (elems) {
+    if (Array.isArray(elems)) {
       var result = [];
       for (var i = 0; i < elems.length; i++) {
         result.push(elems[i].cloneNode(true));
@@ -403,8 +407,8 @@
 
   dom.attr = function (elements, key, val) {
     if (!elements) return undefined;
-    if (val) return elements.setAttribute(key, val);
-    else return elements.getAttribute(key);
+    if (val !== undefined) return elements.setAttribute(key, val);
+    return elements.getAttribute(key);
   };
   dom.replaceWith = function (node, replacement) {
     if (!node || !node.parentNode) return;
@@ -712,18 +716,22 @@
     }
   };
   dom.getStyle = function (element, property) {
+    if (!element || element.nodeType !== 1) return undefined;
     return window.getComputedStyle(element)[property];
   };
   dom.hasClass = function (element, className) {
+    if (!element || !element.classList) return false;
     return element.classList.contains(className);
   };
   dom.addClass = function (element, classNames) {
+    if (!element || !element.classList) return;
     var names = classNames.split(' ');
     for (var i = 0; i < names.length; i++) {
       if (names[i]) element.classList.add(names[i]);
     }
   };
   dom.removeClass = function (element, classNames) {
+    if (!element || !element.classList) return;
     var names = classNames.split(' ');
     for (var i = 0; i < names.length; i++) {
       if (names[i]) element.classList.remove(names[i]);
