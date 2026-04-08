@@ -243,8 +243,8 @@
     return c;
   };
   dom.getSiblings = function (element, dir, elementNodesOnly, stopElem) {
+    var elems = [];
     if (elementNodesOnly === true) {
-      var elems = [];
       if (dir === 'prev') {
         var prevEl = element.previousElementSibling;
         while (prevEl) {
@@ -260,7 +260,7 @@
       }
       return elems;
     } else {
-      var elems = [];
+      elems = [];
       if (dir === 'prev') {
         while (element.previousSibling) {
           element = element.previousSibling;
