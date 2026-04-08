@@ -1,8 +1,33 @@
 (function () {
-	
+
   var exports = this,
 		_browser = null,
     dom = {};
+
+  // Private helper for deep/shallow object merging
+  function _isPlainObject(obj) {
+    if (typeof obj !== 'object' || obj === null) return false;
+    // DOM nodes, window, and other host objects are not plain objects
+    if (obj.nodeType || obj === obj.window) return false;
+    var proto = Object.getPrototypeOf(obj);
+    return proto === null || proto === Object.prototype;
+  }
+
+  function _mergeObjects(target, source, deep) {
+    if (!source) return;
+    for (var key in source) {
+      if (source.hasOwnProperty(key)) {
+        if (deep && _isPlainObject(source[key])) {
+          if (!_isPlainObject(target[key])) {
+            target[key] = {};
+          }
+          _mergeObjects(target[key], source[key], deep);
+        } else {
+          target[key] = source[key];
+        }
+      }
+    }
+  }
 
   dom.DOM_VK_DELETE = 8;
   dom.DOM_VK_LEFT = 37;
@@ -43,7 +68,7 @@
     if (tagName) {
       className = tagName + className;
     }
-    return jQuery.makeArray(jQuery(startElement).find(className));
+    return Array.prototype.slice.call(startElement.querySelectorAll(className));
   };
   dom.getId = function (id, startElement) {
     if (!startElement) {
@@ -56,7 +81,7 @@
     if (!startElement) {
       startElement = document;
     }
-    return jQuery.makeArray(jQuery(startElement).find(tagName));
+    return Array.prototype.slice.call(startElement.querySelectorAll(tagName));
   };
   dom.getElementWidth = function (element) {
     return element.offsetWidth;
@@ -72,36 +97,46 @@
     return result;
   };
   dom.trim = function (string) {
-    return jQuery.trim(string);
+    return string.trim();
   };
   dom.empty = function (element) {
     if (element) {
-      return jQuery(element).empty();
+      while (element.firstChild) {
+        element.removeChild(element.firstChild);
+      }
     }
   };
   dom.remove = function (element) {
-    if (element) {
-      return jQuery(element).remove();
+    if (!element) return;
+    if (Array.isArray(element) || element instanceof NodeList) {
+      var elems = Array.prototype.slice.call(element);
+      for (var i = 0; i < elems.length; i++) {
+        if (elems[i] && elems[i].parentNode) {
+          elems[i].parentNode.removeChild(elems[i]);
+        }
+      }
+    } else if (element.parentNode) {
+      element.parentNode.removeChild(element);
     }
   };
   dom.prepend = function (parent, elem) {
-    jQuery(parent).prepend(elem);
+    parent.insertBefore(elem, parent.firstChild);
   };
   dom.append = function (parent, elem) {
-    jQuery(parent).append(elem);
+    parent.appendChild(elem);
   };
   dom.insertBefore = function (before, elem) {
-    jQuery(before).before(elem);
+    before.parentNode.insertBefore(elem, before);
   };
   dom.insertAfter = function (after, elem) {
-    jQuery(after).after(elem);
+    after.parentNode.insertBefore(elem, after.nextSibling);
   };
   dom.getHtml = function (element) {
-    return jQuery(element).html();
+    return element.innerHTML;
   };
   dom.setHtml = function (element, content) {
     if (element) {
-      jQuery(element).html(content);
+      element.innerHTML = content;
     }
   };
   // Remove whitespace/newlines between nested block elements
@@ -111,21 +146,20 @@
   // Will be converted to the following:
   //   <div><p> para </p><ul><li> hi </li></ul></div>
   dom.removeWhitespace = function(element) {
-    jQuery(element).contents().filter(function() {
+    var childNodes = Array.prototype.slice.call(element.childNodes);
+    for (var i = childNodes.length - 1; i >= 0; i--) {
+      var node = childNodes[i];
       // Ice supports UL and OL, so recurse in these blocks to
       // make sure that spaces don't exist between inner LI.
-      if (this.nodeType != ice.dom.TEXT_NODE && this.nodeName == 'UL' || this.nodeName == 'OL') {
-        dom.removeWhitespace(this);
-        return false;
-      } else if (this.nodeType != ice.dom.TEXT_NODE) {
-        return false;
-      } else {
-        return !/\S/.test(this.nodeValue);
+      if (node.nodeType != ice.dom.TEXT_NODE && (node.nodeName == 'UL' || node.nodeName == 'OL')) {
+        dom.removeWhitespace(node);
+      } else if (node.nodeType === ice.dom.TEXT_NODE && !/\S/.test(node.nodeValue)) {
+        element.removeChild(node);
       }
-    }).remove();
+    }
   };
   dom.contents = function (el) {
-    return jQuery.makeArray(jQuery(el).contents());
+    return Array.prototype.slice.call(el.childNodes);
   };
   /**
    * Returns the inner contents of `el` as a DocumentFragment.
@@ -147,14 +181,15 @@
   };
 
   dom.getParents = function (elements, filter, stopEl) {
-    var res = jQuery(elements).parents(filter);
-    var ln = res.length;
+    var el = elements;
     var ar = [];
-    for (var i = 0; i < ln; i++) {
-      if (res[i] === stopEl) {
-        break;
+    while (el && el.parentNode) {
+      el = el.parentNode;
+      if (el === stopEl) break;
+      if (el === document) break;
+      if (!filter || (el.matches && el.matches(filter))) {
+        ar.push(el);
       }
-      ar.push(res[i]);
     }
     return ar;
   };
@@ -170,37 +205,60 @@
     return false;
   };
   dom.removeTag = function (element, selector) {
-    jQuery(element).find(selector).replaceWith(function () {
-      return jQuery(this).contents();
-    });
+    var nodes = Array.prototype.slice.call(element.querySelectorAll(selector));
+    for (var i = 0; i < nodes.length; i++) {
+      var node = nodes[i];
+      var parent = node.parentNode;
+      while (node.firstChild) {
+        parent.insertBefore(node.firstChild, node);
+      }
+      parent.removeChild(node);
+    }
     return element;
   };
   dom.stripEnclosingTags = function (content, allowedTags) {
-    var c = jQuery(content);
-    c.find('*').not(allowedTags).replaceWith(function () {
-      var ret = jQuery();
-      var $this;
-      try{
-        $this = jQuery(this);
-        ret = $this.contents();
-      } catch(e){}
-
-      // Handling jQuery bug (which may be fixed in the official release later)
-      // http://bugs.jquery.com/ticket/13401 
-      if(ret.length === 0){
-        $this.remove();
+    var c;
+    if (typeof content === 'string') {
+      c = document.createElement('div');
+      c.innerHTML = content;
+    } else {
+      c = content;
+    }
+    var allEls = Array.prototype.slice.call(c.querySelectorAll('*'));
+    for (var i = allEls.length - 1; i >= 0; i--) {
+      var el = allEls[i];
+      if (!el.matches(allowedTags)) {
+        var parent = el.parentNode;
+        if (!parent) continue;
+        if (el.childNodes.length === 0) {
+          parent.removeChild(el);
+        } else {
+          while (el.firstChild) {
+            parent.insertBefore(el.firstChild, el);
+          }
+          parent.removeChild(el);
+        }
       }
-      return ret;
-    });
-    return c[0];
+    }
+    return c;
   };
   dom.getSiblings = function (element, dir, elementNodesOnly, stopElem) {
     if (elementNodesOnly === true) {
+      var elems = [];
       if (dir === 'prev') {
-        return jQuery(element).prevAll();
+        var prevEl = element.previousElementSibling;
+        while (prevEl) {
+          elems.push(prevEl);
+          prevEl = prevEl.previousElementSibling;
+        }
       } else {
-        return jQuery(element).nextAll();
+        var nextEl = element.nextElementSibling;
+        while (nextEl) {
+          elems.push(nextEl);
+          nextEl = nextEl.nextElementSibling;
+        }
       }
+      return elems;
     } else {
       var elems = [];
       if (dir === 'prev') {
@@ -224,21 +282,25 @@
     }
   };
   dom.getNodeTextContent = function (node) {
-    return jQuery(node).text();
+    return node.textContent;
   };
   dom.getNodeStubContent = function (node) {
-    return jQuery(node).find(dom.CONTENT_STUB_ELEMENTS.join(', '));
+    if (!node.querySelectorAll) return [];
+    return Array.prototype.slice.call(node.querySelectorAll(dom.CONTENT_STUB_ELEMENTS.join(', ')));
   };
   dom.hasNoTextOrStubContent = function (node) {
-    if (dom.getNodeTextContent(node).length > 0) return false;
-    if (jQuery(node).find(dom.CONTENT_STUB_ELEMENTS.join(', ')).length > 0) return false;
+    if (!node) return true;
+    if (node.textContent.length > 0) return false;
+    if (node.querySelectorAll && node.querySelectorAll(dom.CONTENT_STUB_ELEMENTS.join(', ')).length > 0) return false;
     return true;
   };
   dom.getNodeCharacterLength = function (node) {
-    return dom.getNodeTextContent(node).length + jQuery(node).find(dom.STUB_ELEMENTS.join(', ')).length;
+    var stubCount = node.querySelectorAll ? node.querySelectorAll(dom.STUB_ELEMENTS.join(', ')).length : 0;
+    return node.textContent.length + stubCount;
   };
   dom.setNodeTextContent = function (node, txt) {
-    return jQuery(node).text(txt);
+    node.textContent = txt;
+    return node;
   };
   dom.getTagName = function (node) {
     return node.tagName && node.tagName.toLowerCase() || null;
@@ -314,36 +376,55 @@
   dom.isChildOfClassName = function (el, name) {
     try {
       while (el && el.parentNode) {
-        if (jQuery(el.parentNode).hasClass(name)) return el.parentNode;
+        if (el.parentNode.classList && el.parentNode.classList.contains(name)) return el.parentNode;
         el = el.parentNode;
       }
     } catch (e) {}
     return null;
   };
   dom.cloneNode = function (elems, cloneEvents) {
-    if (cloneEvents === undefined) {
-      cloneEvents = true;
+    if (elems.length !== undefined) {
+      var result = [];
+      for (var i = 0; i < elems.length; i++) {
+        result.push(elems[i].cloneNode(true));
+      }
+      return result;
     }
-    return jQuery(elems).clone(cloneEvents);
+    return [elems.cloneNode(true)];
   };
 
   dom.bind = function (element, event, callback) {
-    return jQuery(element).bind(event, callback);
+    element.addEventListener(event, callback);
   };
 
   dom.unbind = function (element, event, callback) {
-    return jQuery(element).unbind(event, callback);
+    element.removeEventListener(event, callback);
   };
 
   dom.attr = function (elements, key, val) {
-    if (val) return jQuery(elements).attr(key, val);
-    else return jQuery(elements).attr(key);
+    if (!elements) return undefined;
+    if (val) return elements.setAttribute(key, val);
+    else return elements.getAttribute(key);
   };
   dom.replaceWith = function (node, replacement) {
-    return jQuery(node).replaceWith(replacement);
+    if (!node || !node.parentNode) return;
+    if (typeof replacement === 'string') {
+      node.outerHTML = replacement;
+    } else if (Array.isArray(replacement) || replacement instanceof NodeList) {
+      var parent = node.parentNode;
+      var frag = document.createDocumentFragment();
+      // Copy to array to avoid live collection issues
+      var items = Array.prototype.slice.call(replacement);
+      for (var i = 0; i < items.length; i++) {
+        frag.appendChild(items[i]);
+      }
+      parent.replaceChild(frag, node);
+    } else {
+      node.parentNode.replaceChild(replacement, node);
+    }
   };
   dom.removeAttr = function (elements, name) {
-    jQuery(elements).removeAttr(name);
+    elements.removeAttribute(name);
   };
   dom.getElementsBetween = function (fromElem, toElem) {
     var elements = [];
@@ -518,11 +599,11 @@
     return node;
   };
   dom.removeEmptyNodes = function (parent, callback) {
-    var elems = jQuery(parent).find(':empty');
+    var elems = Array.prototype.slice.call(parent.querySelectorAll('*'));
     var i = elems.length;
     while (i > 0) {
       i--;
-      if (dom.isStubElement(elems[i]) === false) {
+      if (elems[i].childNodes.length === 0 && dom.isStubElement(elems[i]) === false) {
         if (!callback || callback.call(this, elems[i]) !== false) {
           dom.remove(elems[i]);
         }
@@ -530,25 +611,65 @@
     }
   };
   dom.create = function (html) {
-    return jQuery(html)[0];
+    var div = document.createElement('div');
+    div.innerHTML = html;
+    return div.firstChild;
   };
   dom.find = function (parent, exp) {
-    return jQuery(parent).find(exp);
+    if (!parent || !parent.querySelectorAll) return [];
+    // Quote unquoted attribute values for querySelectorAll compatibility
+    // e.g. [data-cid=4] -> [data-cid="4"]
+    exp = exp.replace(/\[([^\]~|^$*!]+)=([^\]"'][^\]]*)\]/g, '[$1="$2"]');
+    return Array.prototype.slice.call(parent.querySelectorAll(exp));
   };
   dom.children = function (parent, exp) {
-    return jQuery(parent).children(exp);
+    if (!parent || !parent.children) return [];
+    var kids = Array.prototype.slice.call(parent.children);
+    if (exp) {
+      return kids.filter(function(child) {
+        return child.matches(exp);
+      });
+    }
+    return kids;
   };
   dom.parent = function (child, exp) {
-    return jQuery(child).parent(exp)[0];
+    var p = child.parentNode;
+    if (exp && p && p.matches) {
+      return p.matches(exp) ? p : undefined;
+    }
+    return p;
   };
   dom.parents = function (child, exp) {
-    return jQuery(child).parents(exp);
+    var result = [];
+    if (!child) return result;
+    var node = child.parentNode;
+    while (node && node !== document) {
+      if (!exp || (node.matches && node.matches(exp))) {
+        result.push(node);
+      }
+      node = node.parentNode;
+    }
+    return result;
   };
   dom.is = function (node, exp) {
-    return jQuery(node).is(exp);
+    if (!node || !node.matches) return false;
+    return node.matches(exp);
   };
-  dom.extend = function (deep, target, object1, object2) {
-    return jQuery.extend.apply(this, arguments);
+  dom.extend = function (deep, target) {
+    if (typeof deep !== 'boolean') {
+      // Shift arguments if `deep` is not provided
+      var args = Array.prototype.slice.call(arguments);
+      target = deep;
+      deep = false;
+      for (var i = 1; i < args.length; i++) {
+        _mergeObjects(target, args[i], deep);
+      }
+      return target;
+    }
+    for (var j = 2; j < arguments.length; j++) {
+      _mergeObjects(target, arguments[j], deep);
+    }
+    return target;
   };
   dom.walk = function (elem, callback, lvl) {
     if (!elem) {
@@ -587,20 +708,26 @@
   };
   dom.setStyle = function (element, property, value) {
     if (element) {
-      jQuery(element).css(property, value);
+      element.style[property] = value;
     }
   };
   dom.getStyle = function (element, property) {
-    return jQuery(element).css(property);
+    return window.getComputedStyle(element)[property];
   };
   dom.hasClass = function (element, className) {
-    return jQuery(element).hasClass(className);
+    return element.classList.contains(className);
   };
   dom.addClass = function (element, classNames) {
-    jQuery(element).addClass(classNames);
+    var names = classNames.split(' ');
+    for (var i = 0; i < names.length; i++) {
+      if (names[i]) element.classList.add(names[i]);
+    }
   };
   dom.removeClass = function (element, classNames) {
-    jQuery(element).removeClass(classNames);
+    var names = classNames.split(' ');
+    for (var i = 0; i < names.length; i++) {
+      if (names[i]) element.classList.remove(names[i]);
+    }
   };
   dom.preventDefault = function (e) {
     e.preventDefault();
@@ -633,9 +760,17 @@
   };
 
   dom.each = function (val, callback) {
-    jQuery.each(val, function (i, el) {
-      callback.call(this, i, el);
-    });
+    if (Array.isArray(val) || val instanceof NodeList || val instanceof HTMLCollection) {
+      for (var i = 0; i < val.length; i++) {
+        callback.call(val[i], i, val[i]);
+      }
+    } else {
+      for (var key in val) {
+        if (val.hasOwnProperty(key)) {
+          callback.call(val[key], key, val[key]);
+        }
+      }
+    }
   };
 
   dom.foreach = function (value, cb) {
@@ -685,7 +820,7 @@
     return false;
   };
   dom.isArray = function (v) {
-    return jQuery.isArray(v);
+    return Array.isArray(v);
   };
   dom.isNumeric = function (str) {
     var result = str.match(/^\d+$/);
@@ -740,9 +875,15 @@
    */
   dom.stripTags = function (content, allowedTags) {
     if (typeof allowedTags === "string") {
-      var c = jQuery('<div>' + content + '</div>');
-      c.find('*').not(allowedTags).remove();
-      return c.html();
+      var c = document.createElement('div');
+      c.innerHTML = content;
+      var allEls = Array.prototype.slice.call(c.querySelectorAll('*'));
+      for (var i = allEls.length - 1; i >= 0; i--) {
+        if (!allEls[i].matches(allowedTags)) {
+          allEls[i].parentNode.removeChild(allEls[i]);
+        }
+      }
+      return c.innerHTML;
     } else {
       var match;
       var re = new RegExp(/<\/?(\w+)((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/gim);
@@ -756,27 +897,27 @@
     }
   };
   dom.browser = function () {
-		if (_browser) {
-      return $.extend({}, _browser);
+    if (_browser) {
+      return dom.extend(false, {}, _browser);
     }
-		
+
     _browser = (function() {
       function uaMatch( ua ) {
         ua = ua.toLowerCase();
-	
+
         var match = /(chrome)[ \/]([\w.]+)/.exec( ua ) ||
           /(webkit)[ \/]([\w.]+)/.exec( ua ) ||
           /(opera)(?:.*version|)[ \/]([\w.]+)/.exec( ua ) ||
           /(msie) ([\w.]+)/.exec( ua ) ||
           ua.indexOf("compatible") < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec( ua ) ||
           [];
-	
-	return {
+
+        return {
           browser: match[ 1 ] || "",
           version: match[ 2 ] || "0"
         };
       }
-	
+
       var ua = navigator.userAgent.toLowerCase(),
           matched = uaMatch(ua),
           browser = {
@@ -784,13 +925,13 @@
             version : 0,
             msie: false
           };
-	
+
       if ( matched.browser ) {
         browser[ matched.browser ] = true;
         browser.version = matched.version || 0;
         browser.type = matched.browser;
       }
-	
+
       // Chrome is Webkit, but Webkit is also Safari.
       if ( browser.chrome ) {
         browser.webkit = true;
@@ -802,13 +943,13 @@
       }
       browser.firefox = (/firefox/.test(ua) == true);
       if (! browser.msie) {
-        browser.msie = !! /trident/.test(ua); 
+        browser.msie = !! /trident/.test(ua);
       }
-			
+
       return browser;
     })();
-    
-    return $.extend({}, _browser);
+
+    return dom.extend(false, {}, _browser);
   };
   dom.getBrowserType = function () {
     if (this._browserType === null) {
@@ -827,13 +968,13 @@
     return this._browserType;
   };
   dom.getWebkitType = function(){
-	if(dom.browser().type !== "webkit") {
-		console.log("Not a webkit!");
-		return false;
-	}
+    if(dom.browser().type !== "webkit") {
+      console.log("Not a webkit!");
+      return false;
+    }
     var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
-	if(isSafari) return "safari";
-	return "chrome";
+    if(isSafari) return "safari";
+    return "chrome";
   };
   dom.isBrowser = function (browser) {
     return (dom.browser().type === browser);
@@ -904,7 +1045,7 @@
   };
 
   dom.mergeBlockWithSibling = function (range, block, next) {
-    var siblingBlock = next ? jQuery(block).next().get(0) : jQuery(block).prev().get(0); // block['nextSibling'] : block['previousSibling'];
+    var siblingBlock = next ? block.nextElementSibling : block.previousElementSibling;
     if (next) dom.mergeContainers(siblingBlock, block);
     else dom.mergeContainers(block, siblingBlock);
     range.collapse(true);

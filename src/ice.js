@@ -446,7 +446,8 @@
 					return false;
 				}
 				ice.dom.each(this._deletes, function (i, el) {
-					ice.dom.find(self.element, self._delBookmark + '[data-allocation=' + i + ']').replaceWith(el);
+					var placeholders = ice.dom.find(self.element, self._delBookmark + '[data-allocation=' + i + ']');
+					if (placeholders.length) ice.dom.replaceWith(placeholders[0], el);
 				});
 				this.isPlaceholdingDeletes = false;
 				return true;
@@ -1434,7 +1435,7 @@
 					}
 					contentNode.parentNode.removeChild(contentNode);
 					var cleanNode = ice.dom.cloneNode(contentAddNode);
-					ice.dom.remove(ice.dom.find(cleanNode, '.iceBookmark'));
+					ice.dom.remove(ice.dom.find(cleanNode[0], '.iceBookmark'));
 					// Remove a potential empty tracking container
 					if (contentAddNode !== null && (ice.dom.hasNoTextOrStubContent(cleanNode[0]))) {
 						var newstart = this.env.document.createTextNode('');

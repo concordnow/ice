@@ -1,4 +1,4 @@
-$(document).ready(function() {
+document.addEventListener('DOMContentLoaded', function() {
 
   QUnit.module("range/rangy extensions", function() {
 
@@ -7,14 +7,14 @@ $(document).ready(function() {
       //                   |             |
       //                   A             B
       // go from B to A
-      var el = jQuery('<div><p>a paragraph</p><ol><li><span><img></span></li></ol></div>');
+      var el = createEl('<div><p>a paragraph</p><ol><li><span><img></span></li></ol></div>');
       var changeEditor = getIce(el);
       var range = changeEditor.env.selection.createRange();
 
-      range.setStart(el.find('li')[0], 0);
+      range.setStart(el.querySelector('li'), 0);
       range.moveStart('character', -1);
 
-      assert.equal(range.startContainer, el.find('p')[0].childNodes[0]);
+      assert.equal(range.startContainer, el.querySelector('p').childNodes[0]);
       assert.equal(range.startOffset, 10);
     });
 
@@ -23,14 +23,14 @@ $(document).ready(function() {
       //         |       |
       //         A       B
       // go from A to B
-      var el = jQuery('<div><p><span>a paragraph</span></p></div>');
+      var el = createEl('<div><p><span>a paragraph</span></p></div>');
       var changeEditor = getIce(el);
       var range = changeEditor.env.selection.createRange();
-      
-      range.setStart(el.find('p')[0], 0);
+
+      range.setStart(el.querySelector('p'), 0);
       range.moveStart('character', 1);
 
-      assert.equal(range.startContainer, el.find('span')[0].childNodes[0]);
+      assert.equal(range.startContainer, el.querySelector('span').childNodes[0]);
       assert.equal(range.startOffset, 1);
     });
 
@@ -39,14 +39,14 @@ $(document).ready(function() {
       //           |                            |
       //           A                            B
       // go from B to A
-      var el = jQuery('<div><p>test<span>a paragraph</span>test</p></div>');
+      var el = createEl('<div><p>test<span>a paragraph</span>test</p></div>');
       var changeEditor = getIce(el);
       var range = changeEditor.env.selection.createRange();
 
-      range.setStart(el.find('p')[0].childNodes[2], 2);
+      range.setStart(el.querySelector('p').childNodes[2], 2);
       range.moveStart('character', -15);
 
-      assert.equal(range.startContainer, el.find('p')[0].childNodes[0]);
+      assert.equal(range.startContainer, el.querySelector('p').childNodes[0]);
       assert.equal(range.startOffset, 2);
     });
 
@@ -55,14 +55,14 @@ $(document).ready(function() {
       //           |                            |
       //           A                            B
       // go from A to B
-      var el = jQuery('<div><p>test<span>a paragraph</span>test</p></div>');
+      var el = createEl('<div><p>test<span>a paragraph</span>test</p></div>');
       var changeEditor = getIce(el);
       var range = changeEditor.env.selection.createRange();
 
-      range.setStart(el.find('p')[0].childNodes[0], 2);
+      range.setStart(el.querySelector('p').childNodes[0], 2);
       range.moveStart('character', 15);
 
-      assert.equal(range.startContainer, el.find('p')[0].childNodes[2]);
+      assert.equal(range.startContainer, el.querySelector('p').childNodes[2]);
       assert.equal(range.startOffset, 2);
     });
 
@@ -71,14 +71,14 @@ $(document).ready(function() {
       //                          |             |
       //                          A             B
       // go from B to A
-      var el = jQuery('<div><p>test<span>a paragraph</span>test</p></div>');
+      var el = createEl('<div><p>test<span>a paragraph</span>test</p></div>');
       var changeEditor = getIce(el);
       var range = changeEditor.env.selection.createRange();
 
-      range.setStart(el.find('p')[0].childNodes[2], 2);
+      range.setStart(el.querySelector('p').childNodes[2], 2);
       range.moveStart('character', -6);
 
-      assert.equal(range.startContainer, el.find('span')[0].childNodes[0]);
+      assert.equal(range.startContainer, el.querySelector('span').childNodes[0]);
       assert.equal(range.startOffset, 7);
     });
 
@@ -87,14 +87,14 @@ $(document).ready(function() {
       //                          |             |
       //                          A             B
       // go from A to B
-      var el = jQuery('<div><p>test<span>a paragraph</span>test</p></div>');
+      var el = createEl('<div><p>test<span>a paragraph</span>test</p></div>');
       var changeEditor = getIce(el);
       var range = changeEditor.env.selection.createRange();
 
-      range.setStart(el.find('p')[0].childNodes[1].childNodes[0], 7);
+      range.setStart(el.querySelector('p').childNodes[1].childNodes[0], 7);
       range.moveStart('character', 6);
 
-      assert.equal(range.startContainer, el.find('p')[0].childNodes[2]);
+      assert.equal(range.startContainer, el.querySelector('p').childNodes[2]);
       assert.equal(range.startOffset, 2);
     });
 
@@ -103,14 +103,14 @@ $(document).ready(function() {
       //                              |                  |
       //                              A                  B
       // go from B to A
-      var el = jQuery('<div><p>test<span><em>a paragraph</em></span>test</p></div>');
+      var el = createEl('<div><p>test<span><em>a paragraph</em></span>test</p></div>');
       var changeEditor = getIce(el);
       var range = changeEditor.env.selection.createRange();
 
-      range.setStart(el.find('p')[0].childNodes[2], 2);
+      range.setStart(el.querySelector('p').childNodes[2], 2);
       range.moveStart('character', -6);
 
-      assert.equal(range.startContainer, el.find('span')[0].childNodes[0].childNodes[0]);
+      assert.equal(range.startContainer, el.querySelector('span').childNodes[0].childNodes[0]);
       assert.equal(range.startOffset, 7);
     });
 
@@ -119,14 +119,14 @@ $(document).ready(function() {
       //                              |                                                       |
       //                              A                                                       B
       // go from A to B
-      var el = jQuery('<div><p>test<span><em>a paragraph</em></span>test</p><p></p><p>test<span><em>a paragraph</em></span>test</p></div>');
+      var el = createEl('<div><p>test<span><em>a paragraph</em></span>test</p><p></p><p>test<span><em>a paragraph</em></span>test</p></div>');
       var changeEditor = getIce(el);
       var range = changeEditor.env.selection.createRange();
 
-      range.setStart(el.find('p:eq(0) em')[0].childNodes[0], 7);
+      range.setStart(el.querySelectorAll('p')[0].querySelector('em').childNodes[0], 7);
       range.moveStart('character', 19);
 
-      assert.equal(range.startContainer, el.find('p:eq(2) em')[0].childNodes[0]);
+      assert.equal(range.startContainer, el.querySelectorAll('p')[2].querySelector('em').childNodes[0]);
       assert.equal(range.startOffset, 7);
     });
 
@@ -135,14 +135,14 @@ $(document).ready(function() {
       //                              |                                                       |
       //                              A                                                       B
       // go from B to A
-      var el = jQuery('<div><p>test<span><em>a paragraph</em></span>test</p><p></p><p>test<span><em>a paragraph</em></span>test</p></div>');
+      var el = createEl('<div><p>test<span><em>a paragraph</em></span>test</p><p></p><p>test<span><em>a paragraph</em></span>test</p></div>');
       var changeEditor = getIce(el);
       var range = changeEditor.env.selection.createRange();
 
-      range.setStart(el.find('p:eq(2) em')[0].childNodes[0], 7);
+      range.setStart(el.querySelectorAll('p')[2].querySelector('em').childNodes[0], 7);
       range.moveStart('character', -19);
 
-      assert.equal(range.startContainer, el.find('p:eq(0) em')[0].childNodes[0]);
+      assert.equal(range.startContainer, el.querySelectorAll('p')[0].querySelector('em').childNodes[0]);
       assert.equal(range.startOffset, 7);
     });
 

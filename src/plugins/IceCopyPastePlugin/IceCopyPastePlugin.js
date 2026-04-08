@@ -179,7 +179,7 @@ IceCopyPastePlugin.prototype = {
       
       // Paste all of the children in the fragment.
       while(fragment.firstChild) {
-        if(fragment.firstChild.nodeType === 3 && !jQuery.trim(fragment.firstChild.nodeValue)) {
+        if(fragment.firstChild.nodeType === 3 && !fragment.firstChild.nodeValue.trim()) {
           fragment.removeChild(fragment.firstChild);
           continue;
         }
