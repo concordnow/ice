@@ -25,7 +25,10 @@ module.exports = function(grunt) {
     qunit: {
       all: {
         options: {
-          urls: ['http://localhost:8000/test/test.html']
+          urls: ['http://localhost:8000/test/test.html'],
+          puppeteer: {
+            args: ['--no-sandbox']
+          }
         }
       }
     },
