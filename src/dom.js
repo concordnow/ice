@@ -16,6 +16,7 @@
   function _mergeObjects(target, source, deep) {
     if (!source) return;
     for (var key in source) {
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') continue;
       if (source.hasOwnProperty(key)) {
         if (deep && _isPlainObject(source[key])) {
           if (!_isPlainObject(target[key])) {
@@ -397,12 +398,16 @@
     return [elems.cloneNode(true)];
   };
 
-  dom.bind = function (element, event, callback) {
-    element.addEventListener(event, callback);
+  dom.bind = function (element, events, callback) {
+    events.split(/\s+/).forEach(function (evt) {
+      if (evt) element.addEventListener(evt.replace(/\..*$/, ''), callback);
+    });
   };
 
-  dom.unbind = function (element, event, callback) {
-    element.removeEventListener(event, callback);
+  dom.unbind = function (element, events, callback) {
+    events.split(/\s+/).forEach(function (evt) {
+      if (evt) element.removeEventListener(evt.replace(/\..*$/, ''), callback);
+    });
   };
 
   dom.attr = function (elements, key, val) {

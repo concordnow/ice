@@ -135,9 +135,10 @@ IceCopyPastePlugin.prototype = {
     var doc = this._ice.env.document,
         pasteDiv = doc.getElementById(this._pasteId),
         html = ice.dom.getHtml(pasteDiv),
-        childBlocks = ice.dom.children('<div>' + html + '</div>', this._ice.blockEl);
-    if(childBlocks.length === 1 && ice.dom.getNodeTextContent('<div>' + html + '</div>') === ice.dom.getNodeTextContent(childBlocks)) {
-      html = ice.dom.getHtml(html);
+        tempDiv = ice.dom.create('<div>' + html + '</div>'),
+        childBlocks = ice.dom.children(tempDiv, this._ice.blockEl);
+    if(childBlocks.length === 1 && ice.dom.getNodeTextContent(tempDiv) === ice.dom.getNodeTextContent(childBlocks[0])) {
+      html = childBlocks[0].innerHTML;
     }
 
     html = this.beforePasteClean.call(this, html);

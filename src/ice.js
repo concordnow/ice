@@ -121,9 +121,8 @@
 				// If we are handling events setup the delegate to handle various events on `this.element`.
 				if (this.handleEvents) {
 					var self = this;
-					ice.dom.bind(self.element, 'keyup.ice keydown.ice keypress.ice mousedown.ice mouseup.ice', function (e) {
-						return self.handleEvent(e);
-					});
+					this._iceHandler = function (e) { return self.handleEvent(e); };
+					ice.dom.bind(self.element, 'keyup.ice keydown.ice keypress.ice mousedown.ice mouseup.ice', this._iceHandler);
 				}
 
 				this.initializeEnvironment();
@@ -138,10 +137,9 @@
 			 * Removes contenteditability and stops event handling.
 			 */
 			stopTracking: function () {
-				// If we are handling events setup the delegate to handle various events on `this.element`.
-				if (this.handleEvents) {
-					var self = this;
-					ice.dom.unbind(self.element, 'keyup.ice keydown.ice keypress.ice mousedown.ice mouseup.ice');
+				if (this.handleEvents && this._iceHandler) {
+					ice.dom.unbind(this.element, 'keyup.ice keydown.ice keypress.ice mousedown.ice mouseup.ice', this._iceHandler);
+					this._iceHandler = null;
 				}
 
 				this.pluginsManager.fireDisabled(this.element);
