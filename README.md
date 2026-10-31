@@ -130,4 +130,6 @@ Additional options:
 
 ## License
 
-[GPL 2.0](https://github.com/NYTimes/ice/blob/master/LICENSE)
+GPL-2.0-or-later: GNU General Public License, version 2 or (at your option) any later version ([LICENSE](LICENSE)).
+
+The built files bundle [Rangy](https://github.com/timdown/rangy) 1.2.3, Copyright 2012 Tim Down, under the MIT license; its notice is repeated in their banner.
